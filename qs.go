@@ -43,15 +43,129 @@ func partition(si sort.Interface, lo, pi, hi int) int {
 	return i
 }
 
-// TODO
-// // quickselect does enough partial sorting to fix the position of the i-th
-// // element in the final sorted order.
-// func quickselect(si sort.Interface, i int)
+// quickselect does enough partial sorting to fix the position of the i-th
+// element in the final sorted order.
+func quickselect(si sort.Interface, i int) {
+	lo, hi := 0, si.Len()
+	if lo == hi {
+		return
+	}
+	if i < lo || i >= hi {
+		panic("i out of range")
+	}
+	for {
+		pi := lo/2 + hi/2
+		pi = partition(si, lo, pi, hi-1)
+		if i == pi {
+			return
+		}
+		if i < pi {
+			if pi-lo <= 1 {
+				return
+			}
+			hi = pi
+		} else if i > pi {
+			r := pi + 1
+			if hi-r <= 1 {
+				return
+			}
+			lo = r
+		}
+	}
+}
 
-// TODO
-// // quickselectmany is just quickselect for more than one index in a single
-// // pass.
-// func quickselectmany(si sort.Interface, is ...int)
+type quickCore struct {
+	q [][2]int
+
+	// known positions
+	k []bool
+
+	// TODO si sort.Interface
+}
+
+func (qs *quickCore) pop() (int, int) {
+	i := len(qs.q) - 1
+	lo, hi := qs.q[i][0], qs.q[i][1]
+	qs.q = qs.q[:i]
+	return lo, hi
+}
+
+func (qs *quickCore) fix(si sort.Interface, lo, pi, hi int) int {
+	pi = partition(si, lo, pi, hi-1)
+	qs.k[pi] = true
+	return pi
+}
+
+// quickselectmany is just quickselect for more than one index in a single
+// pass.
+func quickselectmany(si sort.Interface, is ...int) {
+	n := len(is)
+	l := si.Len()
+	qs := quickCore{
+		q: [][2]int{{0, l}},
+		k: make([]bool, l),
+	}
+
+	for len(qs.q) > 0 {
+		lo, hi := qs.pop()
+		if hi-lo <= 1 {
+			continue
+		}
+		pi := qs.fix(si, lo, lo/2+hi/2, hi)
+
+		if is[0] > pi {
+			// all are to the right
+			// XXX
+			continue
+		}
+
+		if j := len(is) - 1; is[j] < pi {
+			// all are to the left
+			// XXX
+			continue
+		}
+
+		needLeft, needRight := false, false
+
+		for _, i := range is {
+			if i == pi {
+				n--
+				if n <= 0 {
+					return
+				}
+			}
+			if i < pi {
+				needLeft = true
+			}
+			if i > pi {
+				needRight = true
+			}
+		}
+
+		if needLeft {
+			if pi-lo <= 1 {
+				n--
+				if n <= 0 {
+					return
+				}
+			}
+			qs.q = append(qs.q, [2]int{lo, pi})
+		}
+
+		if needRight {
+			r := pi + 1
+			if hi-r <= 1 {
+				n--
+				if n <= 0 {
+					return
+				}
+			}
+			qs.q = append(qs.q, [2]int{r, hi})
+		}
+
+	}
+
+}
 
 // TODO
 // // quickselectfirst is like quickselect, except after fixing the given index it

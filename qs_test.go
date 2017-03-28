@@ -1,6 +1,7 @@
 package qs
 
 import (
+	"fmt"
 	"sort"
 	"testing"
 
@@ -59,72 +60,79 @@ func TestQuickSort(t *testing.T) {
 	}
 }
 
-// // TODO: uncomment when implementing quickselect
-// func TestQuickSelect(t *testing.T) {
-// 	for _, pcts := range [][]float64{
-// 		{0.5},
-// 		{0.25, 0.5, 0.75},
-// 		{0.25, 0.5, 0.75, 0.9, 0.95, 0.99},
-// 	} {
-// 		for _, tc := range testData {
-// 			t.Run(tc.name, func(t *testing.T) {
-// 				for _, pct := range pcts {
-// 					t.Run(fmt.Sprintf("quickselect %0.2f", pct), func(t *testing.T) {
-// 						i := int(pct * float64(len(tc.xs)))
+func TestQuickSelect(t *testing.T) {
+	for _, pcts := range [][]float64{
+		{0.5},
+		{0.25, 0.5, 0.75},
+		{0.25, 0.5, 0.75, 0.9, 0.95, 0.99},
+	} {
+		for _, tc := range testData {
+			if len(tc.xs) == 0 {
+				// TODO: figure this out
+				continue
+			}
+			t.Run(tc.name, func(t *testing.T) {
+				for _, pct := range pcts {
+					t.Run(fmt.Sprintf("quickselect %0.2f", pct), func(t *testing.T) {
+						i := int(pct * float64(len(tc.xs)))
 
-// 						// the long way round
-// 						a := append(nums(nil), tc.xs...)
-// 						sort.Sort(a)
+						// the long way round
+						a := append(nums(nil), tc.xs...)
+						sort.Sort(a)
 
-// 						// QET
-// 						b := append(nums(nil), tc.xs...)
-// 						quickselect(nums(b), i)
+						// QET
+						b := append(nums(nil), tc.xs...)
+						quickselect(nums(b), i)
 
-// 						// same?
-// 						assert.Equal(t, a[i], b[i])
-// 					})
-// 				}
-// 			})
-// 		}
-// 	}
-// }
+						// same?
+						assert.Equal(t, a[i], b[i])
+					})
+				}
+			})
+		}
+	}
+}
 
-// // TODO: uncomment when implementing quickselectmany
-// func TestQuickSelectMany(t *testing.T) {
-// 	for _, pcts := range [][]float64{
-// 		{0.5},
-// 		{0.25, 0.5, 0.75},
-// 		{0.25, 0.5, 0.75, 0.9, 0.95, 0.99},
-// 	} {
-// 		for _, tc := range testData {
-// 			t.Run(tc.name, func(t *testing.T) {
-// 				is := make([]int, len(pcts))
-// 				for i, pct := range pcts {
-// 					is[i] = int(pct * float64(len(tc.xs)))
-// 				}
+// TODO: uncomment when implementing quickselectmany
+func TestQuickSelectMany(t *testing.T) {
+	for _, pcts := range [][]float64{
+		{0.5},
+		{0.25, 0.5, 0.75},
+		{0.25, 0.5, 0.75, 0.9, 0.95, 0.99},
+	} {
+		for _, tc := range testData {
+			if len(tc.xs) == 0 {
+				// TODO: figure this out
+				continue
+			}
+			t.Run(fmt.Sprintf("%s for %v", tc.name, pcts), func(t *testing.T) {
+				is := make([]int, len(pcts))
+				for i, pct := range pcts {
+					is[i] = int(pct * float64(len(tc.xs)))
+				}
 
-// 				// the long way round
-// 				a := append(nums(nil), tc.xs...)
-// 				sort.Sort(a)
-// 				avs := make([]int, len(is))
-// 				for i := range is {
-// 					avs[i] = a[is[i]]
-// 				}
+				// the long way round
+				a := append(nums(nil), tc.xs...)
+				sort.Sort(a)
+				avs := make([]int, len(is))
+				for i := range is {
+					avs[i] = a[is[i]]
+				}
 
-// 				// QET
-// 				b := append(nums(nil), tc.xs...)
-// 				quickselectmany(nums(b), is...)
-// 				bvs := make([]int, len(is))
-// 				for i := range is {
-// 					bvs[i] = b[is[i]]
-// 				}
+				// QET
+				b := append(nums(nil), tc.xs...)
+				quickselectmany(nums(b), is...)
+				bvs := make([]int, len(is))
+				for i := range is {
+					bvs[i] = b[is[i]]
+				}
 
-// 				// same?
-// 				assert.Equal(t, avs, bvs)
-// 			})
-// 		}
-// 	}
-// }
+				// same?
+				assert.Equal(t, avs, bvs)
+			})
+		}
+	}
+}
 
 // // TODO: uncomment when implementing quickselectfirst
 // func TestQuickSelectFirst(t *testing.T) {
